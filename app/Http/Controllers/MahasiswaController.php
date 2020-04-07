@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Mahasiswa;
 use Validator;
 
@@ -48,6 +49,7 @@ class MahasiswaController extends Controller
         $validator = Validator::make($request->all(), [
             'nrp' => 'required|int|unique:mahasiswa',
             'nama' => 'required|string',
+            'foto' => 'required|image',
             'alamat' => 'required|string'
         ]);
         if ($validator->fails()) {
@@ -58,9 +60,15 @@ class MahasiswaController extends Controller
             ]);
         }
 
+        $foto = $request->file('foto');
+        $t = time();
+        $foto_name = $t . '.' . $foto->getClientOriginalExtension();
+        $foto->move('foto', $foto_name);
+
         $mahasiswa = Mahasiswa::create([
             'nrp' => $request->nrp,
             'nama' => $request->nama,
+            'foto' => $foto_name,
             'alamat' => $request->alamat
         ]);
 
@@ -76,6 +84,7 @@ class MahasiswaController extends Controller
             'id' => 'required|int',
             'nrp' => 'required|int',
             'nama' => 'required|string',
+            'foto' => 'nullable|image',
             'alamat' => 'required|string'
         ]);
         if ($validator->fails()) {
@@ -94,6 +103,15 @@ class MahasiswaController extends Controller
                 'message' => 'Error, ID Mahasiswa Not Found',
                 'data' => ''
             ]);
+        }
+
+        if($request->hasFile('foto')) {
+            unlink('foto/' . $mahasiswa->foto);
+            $foto = $request->file('foto');
+            $t = time();
+            $foto_name = $t . '.' . $foto->getClientOriginalExtension();
+            $foto->move('foto', $foto_name);
+            $mahasiswa->foto = $foto_name;
         }
 
         $mahasiswa->nama = $request->nama;
@@ -118,6 +136,8 @@ class MahasiswaController extends Controller
                 'data' => ''
             ]);
         }
+        $file_path = 'foto/'.$mahasiswa->foto;
+        unlink($file_path);
         $mahasiswa->delete();
         return response()->json([
             'error' => false,
