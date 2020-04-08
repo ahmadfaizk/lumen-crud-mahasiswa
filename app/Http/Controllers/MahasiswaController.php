@@ -34,7 +34,7 @@ class MahasiswaController extends Controller
             return  response()->json([
                 'error' => true,
                 'message' => 'Error, ID Mahasiswa Not Found',
-                'data' => ''
+                'data' => null
             ]);
         } else {
             return response()->json([
@@ -56,7 +56,8 @@ class MahasiswaController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => 'Isi Data Semuanya',
-                'data' => $validator->errors()
+                'errors' => $validator->errors(),
+                'data' => null
             ]);
         }
 
@@ -90,8 +91,9 @@ class MahasiswaController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'error' => true,
-                'message' => 'Isi Data Semuanya',
-                'data' => $validator->errors()
+                'message' => 'Error',
+                'errors' => $validator->errors(),
+                'data' => null
             ]);
         }
 
